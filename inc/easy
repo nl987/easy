@@ -1,0 +1,132 @@
+source ~/.easy/etc/easyrc
+
+function __easy_getfiles {
+  if [[ -z $1 ]]; then
+    local files=$(git diff --name-only master)
+  else
+    local files=$(git diff --name-only master | grep -P $2)
+  fi
+
+  echo $files
+}
+
+function __easy_findinfile {
+  cat $1 | grep ^$2 | grep -Po '(?<=['\''"]).*(?=['\''"])'
+}
+
+function __easy_loadfile {
+  local moduleclass=$(__easy_findinfile $1 moduleclass)
+  local name=$(__easy_findinfile $1 name)
+  local version=$(__easy_findinfile $1 version)
+
+  local mod=$(module -t avail $moduleclass/$name/$version 2>&1 | grep $moduleclass/$moduleclass/$name/$version)
+
+  module load $mod
+}
+
+function __easy_checkstyle {
+  local files=$(__easy_getfiles $1)
+  eb --check-style $files
+}
+
+function __easy_checkout {
+  if [[ -z $1 ]]; then
+    echo Specify regexp to match one branch
+  else
+    local cnt=$(git branch --remote | grep -P $1 | wc -l)
+    if [[ $cnt -gt 1 ]]; then
+      echo Regexp matches more than one branch
+    else
+      local br=$(git branch --remote | grep -P $1 | cut -d/ -f2-)
+      git checkout $br
+    fi
+  fi
+}
+
+function __easy_build {
+  local files=$(__easy_getfiles $1)
+  eb --rebuild --robot $files
+}
+
+function __easy_load {
+  if [[ -z $1 ]]; then
+    local cnt=$(git diff --name-only master | wc -l)
+    if [[ $cnt -gt 1 ]]; then
+      echo Branch differs in more than one file
+    else
+      local file=$(git diff --name-only master)
+      __easy_loadfile $file
+    fi
+  else
+    local cnt=$(git diff --name-only master | grep -P $1 | wc -l)
+    if [[ $cnt -gt 1 ]]; then
+      echo Regexp matches more than one file
+    else
+      local file=$(git diff --name-only master | grep -P $1)
+      __easy_loadfile $file
+    fi
+  fi
+}
+
+function __easy_clean {
+  git checkout master
+  git branch | grep -v master | xargs git branch -D
+}
+
+function __easy_usage {
+  cat <<EOUSAGE
+Usage:
+  easy                            Prepare easy for use
+
+  easy (co|checkout) REGEX        Search for a remote branch maching the
+                                    regex REGEX and check it out
+  easy (cs|check-style) [REGEX]   Find files that differ from master,
+                                    optionally filter on REGEX, and
+                                    run easybuild style checks.
+  easy (b|build) [REGEX]          Find files that differ from master,
+                                    optionally filter on REGEX, and
+                                    attempt to build with easybuild.
+  easy (lo|load) [REGEX]          Make sane attempts to determine the
+                                    module you're reviewing and load it.
+  easy (c|clean)                  Checkout the master branch, and
+                                    locally delete any others.
+
+  easy (h|u|help|usage)           Show this help
+EOUSAGE
+}
+
+function __easy_prep {
+  module purge
+  module load $EASY_ENV
+  [ -n $EASY_GIT ] && module load $EASY_GIT
+  cd $EASY_ROOT
+  git pull
+}
+
+function easy {
+  case $1 in
+    co|checkout)
+      __easy_checkout $2
+      ;;
+    cs|check-style)
+      __easy_checkstyle $2
+      ;;
+    b|build)
+      __easy_build $2
+      ;;
+    bc|clean)
+      __easy_clean
+      ;;
+    lo|load)
+      __easy_load $2
+      ;;
+    h|help|u|usage)
+      __easy_usage
+      ;;
+    *)
+      __easy_prep
+      ;;
+  esac
+}
+
+# vim: ft=sh

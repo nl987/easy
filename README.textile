@@ -1,0 +1,17 @@
+h1. Easy
+
+h2. Installation
+
+# Clone the repo into @~/.easy@
+# Add the following to your @~/.bashrc@:
+
+bc. source ~/.easy/inc/easy
+
+#3 Copy the ebenv module into your modules folder
+# Override the defaults if necessary in @~/.easy/etc/easyrc@
+
+h3. Usage
+
+p. Print the usage with:
+
+bc. $ easy help
