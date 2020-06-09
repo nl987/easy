@@ -15,3 +15,15 @@ h3. Usage
 p. Print the usage with:
 
 bc. $ easy help
+
+p. But in short
+
+bc.. $ easy
+$ easy checkout REGEX-MATCHING-BRANCH
+$ easy check-style
+$ easy build
+$ easy load
+
+Do some tests...
+
+$ easy clean
