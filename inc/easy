@@ -4,7 +4,7 @@ function __easy_getfiles {
   if [[ -z $1 ]]; then
     local files=$(git diff --name-only master)
   else
-    local files=$(git diff --name-only master | grep -P $2)
+    local files=$(git diff --name-only master | grep -P $1)
   fi
 
   echo $files
