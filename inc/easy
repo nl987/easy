@@ -71,6 +71,7 @@ function __easy_load {
 function __easy_clean {
   git checkout master
   git branch | grep -v master | xargs git branch -D
+  git pull
 }
 
 function __easy_usage {
