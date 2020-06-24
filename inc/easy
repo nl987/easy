@@ -80,21 +80,31 @@ function __easy_usage {
 Usage:
   easy                            Prepare easy for use
 
-  easy (co|checkout) REGEX        Search for a remote branch maching the
-                                    regex REGEX and check it out
-  easy (cs|check-style) [REGEX]   Find files that differ from master,
-                                    optionally filter on REGEX, and
+  easy (co|checkout) REGEXP       Search for a remote branch maching the
+                                    regex REGEXP and check it out.
+  easy (d|diff) [REGEXP]          Show the files that differ from master,
+                                    and optionally filter on REGEXP.
+  easy (cs|check-style) [REGEXP]  Find files that differ from master,
+                                    optionally filter on REGEXP, and
                                     run easybuild style checks.
-  easy (b|build) [REGEX]          Find files that differ from master,
-                                    optionally filter on REGEX, and
+  easy (b|build) [REGEXP]         Find files that differ from master,
+                                    optionally filter on REGEXP, and
                                     attempt to build with easybuild.
-  easy (lo|load) [REGEX]          Make sane attempts to determine the
+  easy (lo|load) [REGEXP]         Make sane attempts to determine the
                                     module you're reviewing and load it.
   easy (c|clean)                  Checkout the master branch, and
                                     locally delete any others.
 
   easy (h|u|help|usage)           Show this help
 EOUSAGE
+}
+
+function __easy_fail {
+  cat << EOFAIL
+Command not found: "$1".
+
+Try \`easy help\` for assistance.
+EOFAIL
 }
 
 function __easy_prep {
@@ -113,6 +123,9 @@ function easy {
     cs|check-style)
       __easy_checkstyle $2
       ;;
+    d|diff)
+      __easy_getfiles $2
+      ;;
     b|build)
       __easy_build $2
       ;;
@@ -125,8 +138,11 @@ function easy {
     h|help|u|usage)
       __easy_usage
       ;;
-    *)
+    '')
       __easy_prep
+      ;;
+    *)
+      __easy_fail $2
       ;;
   esac
 }
