@@ -1,5 +1,6 @@
 EASY_ROOT=~/scratch/easybuild/uoy-easyconfigs
 EASY_ENV=ebenv/dev
+EASY_REMOTE=github
 #EASY_GIT=
 
 # vim: ft=sh
