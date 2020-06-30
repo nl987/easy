@@ -2,9 +2,9 @@ source ~/.easy/etc/easyrc
 
 function __easy_getfiles {
   if [[ -z $1 ]]; then
-    local files=$(git diff --name-only master)
+    local files=$(git diff --name-only $EASY_MAIN)
   else
-    local files=$(git diff --name-only master | grep -P $1)
+    local files=$(git diff --name-only $EASY_MAIN | grep -P $1)
   fi
 
   echo $files
@@ -41,6 +41,17 @@ function __easy_checkout {
       git checkout $br
     fi
   fi
+
+  __easy_getfiles | tr ' ' '\n'
+}
+
+function __easy_merge {
+  local branch=$(git branch | grep \* | cut -d\  -f2)
+  if [[ $branch == $EASY_MAIN ]]; then
+    echo On branch $EASY_MAIN, not merging $EASY_MAIN into $EASY_MAIN
+  else
+    git merge -m "easy merged $EASY_MAIN into $branch" $EASY_MAIN
+  fi
 }
 
 function __easy_build {
@@ -50,29 +61,28 @@ function __easy_build {
 
 function __easy_load {
   if [[ -z $1 ]]; then
-    local cnt=$(git diff --name-only master | wc -l)
+    local cnt=$(git diff --name-only $EASY_MAIN | wc -l)
     if [[ $cnt -gt 1 ]]; then
       echo Branch differs in more than one file
     else
-      local file=$(git diff --name-only master)
+      local file=$(git diff --name-only $EASY_MAIN)
       __easy_loadfile $file
     fi
   else
-    local cnt=$(git diff --name-only master | grep -P $1 | wc -l)
+    local cnt=$(git diff --name-only $EASY_MAIN | grep -P $1 | wc -l)
     if [[ $cnt -gt 1 ]]; then
       echo Regexp matches more than one file
     else
-      local file=$(git diff --name-only master | grep -P $1)
+      local file=$(git diff --name-only $EASY_MAIN | grep -P $1)
       __easy_loadfile $file
     fi
   fi
 }
 
 function __easy_clean {
-  git checkout master
-  git branch | grep -v master | xargs git branch -D
-  git pull
-  git fetch --prune
+  git checkout $EASY_MAIN
+  git branch | grep -v $EASY_MAIN | xargs git branch -D
+  git pull --prune
 }
 
 function __easy_usage {
@@ -82,17 +92,18 @@ Usage:
 
   easy (co|checkout) REGEXP       Search for a remote branch maching the
                                     regex REGEXP and check it out.
-  easy (d|diff) [REGEXP]          Show the files that differ from master,
+  easy (m|merge)                  Merge $EASY_MAIN into this branch.
+  easy (d|diff) [REGEXP]          Show the files that differ from $EASY_MAIN,
                                     and optionally filter on REGEXP.
-  easy (cs|check-style) [REGEXP]  Find files that differ from master,
+  easy (cs|check-style) [REGEXP]  Find files that differ from $EASY_MAIN,
                                     optionally filter on REGEXP, and
                                     run easybuild style checks.
-  easy (b|build) [REGEXP]         Find files that differ from master,
+  easy (b|build) [REGEXP]         Find files that differ from $EASY_MAIN,
                                     optionally filter on REGEXP, and
                                     attempt to build with easybuild.
   easy (lo|load) [REGEXP]         Make sane attempts to determine the
                                     module you're reviewing and load it.
-  easy (c|clean)                  Checkout the master branch, and
+  easy (c|clean)                  Checkout the $EASY_MAIN branch, and
                                     locally delete any others.
 
   easy (h|u|help|usage)           Show this help
@@ -120,11 +131,14 @@ function easy {
     co|checkout)
       __easy_checkout $2
       ;;
+    m|merge)
+      __easy_merge
+      ;;
     cs|check-style)
       __easy_checkstyle $2
       ;;
     d|diff)
-      __easy_getfiles $2
+      __easy_getfiles $2 | tr ' ' '\n'
       ;;
     b|build)
       __easy_build $2
