@@ -82,7 +82,8 @@ function __easy_load {
 function __easy_clean {
   git checkout $EASY_MAIN
   git branch | grep -v $EASY_MAIN | xargs git branch -D
-  git pull --prune
+  git pull
+  git remote prune $EASY_REMOTE
 }
 
 function __easy_usage {
@@ -123,7 +124,8 @@ function __easy_prep {
   module load $EASY_ENV
   [ -n $EASY_GIT ] && module load $EASY_GIT
   cd $EASY_ROOT
-  git pull --prune
+  git pull
+  git remote prune $EASY_REMOTE
 }
 
 function easy {
