@@ -10,17 +10,12 @@ function __easy_getfiles {
   echo $files
 }
 
-function __easy_findinfile {
-  cat $1 | grep ^$2 | grep -Po '(?<=['\''"]).*(?=['\''"])'
-}
-
 function __easy_loadfile {
-  local moduleclass=$(__easy_findinfile $1 moduleclass)
-  local name=$(__easy_findinfile $1 name)
-  local version=$(__easy_findinfile $1 version)
+  local class=$(cat $1 | grep ^moduleclass | grep -Po '(?<=['\''"]).*(?=['\''"])')
+  local name=$(basename $1 .eb | sed 's|-|/|' )
 
-  local mod=$(module -t avail $moduleclass/$name/$version 2>&1 | grep $moduleclass/$moduleclass/$name/$version)
-
+  local mod=$class/$class/$name
+  echo Loading $mod...
   module load $mod
 }
 
