@@ -12,7 +12,7 @@ function __easy_getfiles {
 
 function __easy_loadfile {
   local class=$(cat $1 | grep ^moduleclass | grep -Po '(?<=['\''"]).*(?=['\''"])')
-  local name=$(basename $1 .eb | sed 's|-|/|' )
+  local name=$(basename $1 .eb | sed 's|-\([0-9]\)|/\1|' )
 
   local mod=$class/$class/$name
   echo Loading $mod...
