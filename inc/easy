@@ -49,9 +49,18 @@ function __easy_merge {
   fi
 }
 
-function __easy_build {
+function __easy_build_inner {
   local files=$(__easy_getfiles $1)
   eb --rebuild --robot $files
+}
+
+function __easy_build {
+  if [[ -z $STY ]]; then
+    read -r -p "You don't appear to be in a screen. Build anyway? [y/N]: " yn
+    [[ "${yn,,}" == "y" ]] && __easy_build_inner $*
+  else
+    __easy_build_inner $*
+  fi
 }
 
 function __easy_load {
