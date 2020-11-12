@@ -51,7 +51,7 @@ function __easy_merge {
 
 function __easy_build_inner {
   local files=$(__easy_getfiles $1)
-  eb --rebuild --robot $files
+  eb $EASY_BUILD_OPTS $files
 }
 
 function __easy_build {

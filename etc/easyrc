@@ -3,5 +3,6 @@ EASY_ENV=ebenv/dev
 EASY_REMOTE=github
 EASY_MAIN=master
 #EASY_GIT=
+EASY_BUILD_OPTS="--trace --robot --rebuild"
 
 # vim: ft=sh
