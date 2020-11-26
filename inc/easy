@@ -86,8 +86,7 @@ function __easy_load {
 function __easy_clean {
   git checkout $EASY_MAIN
   git branch | grep -v $EASY_MAIN | xargs git branch -D
-  git pull
-  git remote prune $EASY_REMOTE
+  __easy_prep
 }
 
 function __easy_usage {
