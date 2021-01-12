@@ -148,7 +148,7 @@ function easy {
     b|build)
       __easy_build $2
       ;;
-    bc|clean)
+    c|clean)
       __easy_clean
       ;;
     lo|load)
