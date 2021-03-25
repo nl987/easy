@@ -64,22 +64,12 @@ function __easy_build {
 }
 
 function __easy_load {
-  if [[ -z $1 ]]; then
-    local cnt=$(git diff --name-only $EASY_MAIN | wc -l)
-    if [[ $cnt -gt 1 ]]; then
-      echo Branch differs in more than one file
-    else
-      local file=$(git diff --name-only $EASY_MAIN)
-      __easy_loadfile $file
-    fi
+  local cnt=$(__easy_getfiles $1 | grep -P eb$ | wc -l)
+  if [[ $cnt -gt 1 ]]; then
+    echo Branch differs in more than one file
   else
-    local cnt=$(git diff --name-only $EASY_MAIN | grep -P $1 | wc -l)
-    if [[ $cnt -gt 1 ]]; then
-      echo Regexp matches more than one file
-    else
-      local file=$(git diff --name-only $EASY_MAIN | grep -P $1)
-      __easy_loadfile $file
-    fi
+    local file=$(__easy_getfiles $1 | grep -P eb$)
+    __easy_loadfile $file
   fi
 }
 
